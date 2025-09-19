@@ -1,0 +1,105 @@
+# 依赖文件
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 构建输出
+dist/
+build/
+
+# 环境变量文件 (重要：包含 API 密钥)
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# 编辑器和IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+
+# 缓存文件
+.cache/
+.parcel-cache/
+.vite-cache/
+.eslintcache
+
+# 测试覆盖率报告
+coverage/
+*.lcov
+
+# 运行时文件
+*.pid
+*.seed
+*.pid.lock
+
+# 可选的npm缓存目录
+.npm
+
+# 可选的REPL历史
+.node_repl_history
+
+# Yarn Integrity文件
+.yarn-integrity
+
+# dotenv环境变量文件
+.env.test
+
+# parcel-bundler缓存
+.cache
+.parcel-cache
+
+# 下一代打包工具缓存
+.next
+
+# Nuxt.js构建/生成输出
+.nuxt
+
+# Gatsby文件
+.cache/
+
+# Storybook构建输出
+.out
+.storybook-out
+
+# 临时文件夹
+tmp/
+temp/
+
+# Mac系统文件
+**/.DS_Store
+
+# Windows系统文件
+Thumbs.db
+ehthumbs.db
+
+# 网络文件
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# 备份文件
+*.bak
+*.backup

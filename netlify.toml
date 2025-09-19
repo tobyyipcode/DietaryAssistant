@@ -1,0 +1,19 @@
+# Netlify 部署配置
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+# 重定向配置，支援 Vue Router 的 History 模式
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers 配置，提升安全性
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

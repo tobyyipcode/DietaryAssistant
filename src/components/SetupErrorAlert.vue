@@ -1,0 +1,65 @@
+<template>
+  <div v-if="showError" class="fixed top-4 right-4 max-w-md z-50">
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <span class="text-red-500 text-xl">⚠️</span>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            設置提醒
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <p>{{ message }}</p>
+          </div>
+          <div class="mt-3">
+            <div class="flex space-x-2">
+              <button
+                @click="openSetupGuide"
+                class="bg-red-100 text-red-800 text-xs font-medium px-3 py-1 rounded hover:bg-red-200 transition-colors"
+              >
+                查看修復指南
+              </button>
+              <button
+                @click="dismiss"
+                class="bg-gray-100 text-gray-800 text-xs font-medium px-3 py-1 rounded hover:bg-gray-200 transition-colors"
+              >
+                知道了
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+
+const props = defineProps({
+  message: {
+    type: String,
+    default: '需要設置 Supabase 數據庫表和存儲桶才能正常使用應用功能'
+  }
+})
+
+const showError = ref(false)
+
+const dismiss = () => {
+  showError.value = false
+  localStorage.setItem('setup-error-dismissed', 'true')
+}
+
+const openSetupGuide = () => {
+  window.open('/SETUP_FIX.md', '_blank')
+}
+
+onMounted(() => {
+  // 檢查是否已經關閉過提醒
+  const dismissed = localStorage.getItem('setup-error-dismissed')
+  if (!dismissed) {
+    showError.value = true
+  }
+})
+</script>
