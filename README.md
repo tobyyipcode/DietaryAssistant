@@ -40,7 +40,7 @@
 ### 1. 克隆項目
 ```bash
 git clone <項目地址>
-cd DietaryAssistant_v02
+cd DietaryAssistant
 ```
 
 ### 2. 安裝依賴
