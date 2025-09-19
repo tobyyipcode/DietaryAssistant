@@ -7,6 +7,19 @@ export const useMealsStore = defineStore('meals', () => {
   const meals = ref([])
   const loading = ref(false)
   const analyzing = ref(false)
+  const analysisProgress = ref({
+    step: '',
+    percentage: 0,
+    message: ''
+  })
+
+  const updateProgress = (step, percentage, message) => {
+    analysisProgress.value = {
+      step,
+      percentage,
+      message
+    }
+  }
 
   const convertImageToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -55,12 +68,19 @@ export const useMealsStore = defineStore('meals', () => {
 
   const analyzeFoodImage = async (imageFile) => {
     analyzing.value = true
+    updateProgress('start', 0, '開始處理圖片...')
+    
     try {
       let imageUrl = ''
       let imagePath = ''
       
+      // 步驟 1: 壓縮圖片
+      updateProgress('compress', 20, '正在壓縮圖片...')
+      await new Promise(resolve => setTimeout(resolve, 500)) // 模擬處理時間
+      
       // 嘗試上傳到 Supabase Storage
       try {
+        updateProgress('upload', 40, '正在上傳圖片...')
         imagePath = await uploadImage(imageFile)
         
         // 獲取圖片的公開 URL
@@ -70,8 +90,10 @@ export const useMealsStore = defineStore('meals', () => {
         
         imageUrl = publicUrl
         console.log('圖片上傳成功，使用 Supabase URL:', imageUrl)
+        updateProgress('uploaded', 60, '圖片上傳成功！')
       } catch (uploadError) {
         console.warn('圖片上傳失敗，嘗試使用替代方案:', uploadError)
+        updateProgress('fallback', 50, '使用替代方案處理圖片...')
         
         // 如果上傳失敗，嘗試將圖片轉換為 base64
         try {
@@ -83,8 +105,12 @@ export const useMealsStore = defineStore('meals', () => {
         }
       }
 
-      // 使用智譜 AI 分析食物
+      // 步驟 2: AI 分析
+      updateProgress('analyzing', 70, '正在進行 AI 分析...')
       const analysis = await analyzeWithZhipuAI(imageUrl)
+      
+      // 步驟 3: 完成
+      updateProgress('complete', 100, '分析完成！')
       
       return {
         imagePath,
@@ -92,10 +118,15 @@ export const useMealsStore = defineStore('meals', () => {
         analysis
       }
     } catch (error) {
+      updateProgress('error', 0, '分析失敗，請重新嘗試')
       console.error('食物分析失敗:', error)
       throw error
     } finally {
       analyzing.value = false
+      // 延遲重置進度，讓用戶看到完成狀態
+      setTimeout(() => {
+        updateProgress('', 0, '')
+      }, 2000)
     }
   }
 
@@ -103,6 +134,8 @@ export const useMealsStore = defineStore('meals', () => {
     const apiKey = import.meta.env.VITE_ZHIPU_API_KEY
     
     try {
+      updateProgress('ai-request', 80, '正在請求 AI 服務...')
+      
       const response = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
         method: 'POST',
         headers: {
@@ -147,6 +180,8 @@ export const useMealsStore = defineStore('meals', () => {
           max_tokens: 1000
         })
       })
+
+      updateProgress('ai-processing', 90, '正在處理 AI 回應...')
 
       const data = await response.json()
       
@@ -303,6 +338,7 @@ export const useMealsStore = defineStore('meals', () => {
     meals,
     loading,
     analyzing,
+    analysisProgress,
     analyzeFoodImage,
     saveMeal,
     getMeals,

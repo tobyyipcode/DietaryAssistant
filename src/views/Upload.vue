@@ -38,7 +38,7 @@
             class="max-w-full max-h-64 mx-auto rounded-lg shadow-sm"
           />
           <div class="flex gap-4 justify-center">
-            <button @click="clearFile" class="btn-secondary">
+            <button @click="clearFile" class="btn-secondary" :disabled="mealsStore.analyzing">
               重新選擇
             </button>
             <button
@@ -49,6 +49,60 @@
               <span v-if="mealsStore.analyzing">分析中...</span>
               <span v-else>🤖 AI 分析</span>
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI 分析進度條 -->
+      <div v-if="mealsStore.analyzing || mealsStore.analysisProgress.percentage > 0" class="mt-6">
+        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-medium text-gray-900">🤖 AI 分析進度</h3>
+            <span class="text-sm font-medium text-primary-600">{{ mealsStore.analysisProgress.percentage }}%</span>
+          </div>
+          
+          <!-- 進度條 -->
+          <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+            <div 
+              class="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-500 ease-out"
+              :style="{ width: `${mealsStore.analysisProgress.percentage}%` }"
+            ></div>
+          </div>
+          
+          <!-- 進度訊息 -->
+          <div class="flex items-center space-x-2 text-sm text-gray-600">
+            <div v-if="mealsStore.analyzing" class="flex items-center">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500 mr-2"></div>
+              <span>{{ mealsStore.analysisProgress.message || '正在處理...' }}</span>
+            </div>
+            <div v-else-if="mealsStore.analysisProgress.percentage === 100" class="flex items-center">
+              <div class="text-green-500 mr-2">✓</div>
+              <span class="text-green-600">{{ mealsStore.analysisProgress.message }}</span>
+            </div>
+            <div v-else-if="mealsStore.analysisProgress.step === 'error'" class="flex items-center">
+              <div class="text-red-500 mr-2">✗</div>
+              <span class="text-red-600">{{ mealsStore.analysisProgress.message }}</span>
+            </div>
+          </div>
+          
+          <!-- 詳細步驟指示器 -->
+          <div class="mt-4 flex justify-between items-center text-xs text-gray-500">
+            <div class="flex items-center" :class="getStepClass('compress')">
+              <div class="w-2 h-2 rounded-full mr-1" :class="getStepDotClass('compress')"></div>
+              <span>壓縮圖片</span>
+            </div>
+            <div class="flex items-center" :class="getStepClass('upload')">
+              <div class="w-2 h-2 rounded-full mr-1" :class="getStepDotClass('upload')"></div>
+              <span>上傳圖片</span>
+            </div>
+            <div class="flex items-center" :class="getStepClass('analyzing')">
+              <div class="w-2 h-2 rounded-full mr-1" :class="getStepDotClass('analyzing')"></div>
+              <span>AI 分析</span>
+            </div>
+            <div class="flex items-center" :class="getStepClass('complete')">
+              <div class="w-2 h-2 rounded-full mr-1" :class="getStepDotClass('complete')"></div>
+              <span>分析完成</span>
+            </div>
           </div>
         </div>
       </div>
@@ -137,6 +191,45 @@ const imagePath = ref('') // 存儲圖片路徑
 const mealType = ref('lunch')
 const notes = ref('')
 const isDragging = ref(false)
+
+// 獲取步驟樣式
+const getStepClass = (step) => {
+  const currentStep = mealsStore.analysisProgress.step
+  const steps = ['compress', 'upload', 'analyzing', 'complete']
+  const currentIndex = steps.indexOf(currentStep)
+  const stepIndex = steps.indexOf(step)
+  
+  if (currentStep === 'error') {
+    return 'text-red-500'
+  }
+  
+  if (stepIndex <= currentIndex || mealsStore.analysisProgress.percentage === 100) {
+    return 'text-primary-600 font-medium'
+  }
+  
+  return 'text-gray-400'
+}
+
+const getStepDotClass = (step) => {
+  const currentStep = mealsStore.analysisProgress.step
+  const steps = ['compress', 'upload', 'analyzing', 'complete']
+  const currentIndex = steps.indexOf(currentStep)
+  const stepIndex = steps.indexOf(step)
+  
+  if (currentStep === 'error') {
+    return 'bg-red-500'
+  }
+  
+  if (stepIndex <= currentIndex || mealsStore.analysisProgress.percentage === 100) {
+    return 'bg-primary-500'
+  }
+  
+  if (stepIndex === currentIndex + 1 && mealsStore.analyzing) {
+    return 'bg-primary-300 animate-pulse'
+  }
+  
+  return 'bg-gray-300'
+}
 
 const handleFileSelect = (event) => {
   const file = event.target.files[0]
